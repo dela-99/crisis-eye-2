@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrisisEye — Intelligent Emergency Monitoring & Response Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <span class="nav__logo-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="#38BDF8" stroke-width="1.5"/>
+            <circle cx="14" cy="14" r="8" stroke="#38BDF8" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="14" cy="14" r="3" fill="#EF4444"/>
+            <line x1="14" y1="1" x2="14" y2="6" stroke="#38BDF8" stroke-width="1.5"/>
+            <line x1="14" y1="22" x2="14" y2="27" stroke="#38BDF8" stroke-width="1.5"/>
+            <line x1="1" y1="14" x2="6" y2="14" stroke="#38BDF8" stroke-width="1.5"/>
+            <line x1="22" y1="14" x2="27" y2="14" stroke="#38BDF8" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="nav__logo-text">CRISIS<span class="text-red">EYE</span></span>
+      </a>
+
+      <ul class="nav__links">
+        <li><a href="index.html" class="nav__link nav__link--active">Home</a></li>
+        <li><a href="report.html" class="nav__link">Report</a></li>
+        <li><a href="map.html" class="nav__link">Live Map</a></li>
+        <li><a href="dashboard.html" class="nav__link">Dashboard</a></li>
+      </ul>
+
+      <div class="nav__actions">
+        <span class="live-dot"></span>
+        <span class="live-label">LIVE</span>
+        <a href="report.html" class="btn btn--sm btn--danger">Report Emergency</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="index.html">Home</a>
+      <a href="report.html">Report Emergency</a>
+      <a href="map.html">Live Map</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__radar">
+      <div class="radar__ring r1"></div>
+      <div class="radar__ring r2"></div>
+      <div class="radar__ring r3"></div>
+      <div class="radar__ring r4"></div>
+      <div class="radar__sweep"></div>
+      <div class="radar__blip b1"></div>
+      <div class="radar__blip b2"></div>
+      <div class="radar__blip b3"></div>
+    </div>
+    <div class="hero__grid"></div>
+
+    <div class="hero__content">
+      <div class="hero__badge">
+        <span class="badge-dot"></span>
+        NATIONAL EMERGENCY MANAGEMENT SYSTEM — GH
+      </div>
+
+      <h1 class="hero__title">
+        <span class="hero__wordmark">CRISIS<span class="text-red">EYE</span></span>
+        <span class="hero__subtitle">Intelligent Emergency Monitoring<br>&amp; Response Platform</span>
+      </h1>
+
+      <p class="hero__desc">
+        Monitor, report, and track emergencies in real time through a centralized crisis management platform. Built for Ghana's national emergency response network.
+      </p>
+
+      <div class="hero__ctas">
+        <a href="dashboard.html" class="btn btn--primary btn--lg">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+          Launch Command Center
+        </a>
+        <a href="report.html" class="btn btn--danger btn--lg">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v6M8 11v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M1.5 13.5L8 2l6.5 11.5H1.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Report Emergency
+        </a>
+        <a href="map.html" class="btn btn--ghost btn--lg">View Live Map →</a>
+      </div>
+
+      <div class="alert-ticker">
+        <span class="ticker__label">ACTIVE ALERTS</span>
+        <div class="ticker__track">
+          <div class="ticker__inner" id="ticker">
+            <span class="ticker__item fire">🔴 FIRE — Accra Central, Greater Accra</span>
+            <span class="ticker__item flood">🔵 FLOOD — Kumasi South, Ashanti Region</span>
+            <span class="ticker__item accident">🟠 ACCIDENT — Koforidua Bypass, Eastern Region</span>
+            <span class="ticker__item medical">🟢 MEDICAL — Tamale General Hospital, N/R</span>
+            <span class="ticker__item crime">⚪ SECURITY — Tema Industrial Area, Greater Accra</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__stats-panel">
+      <div class="hstat">
+        <span class="hstat__value" data-count="247">0</span>
+        <span class="hstat__label">Incidents Monitored</span>
+        <span class="hstat__trend up">↑ 12% this week</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat__value text-red" data-count="18">0</span>
+        <span class="hstat__label">Active Right Now</span>
+        <span class="hstat__trend live">● LIVE</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat__value text-green" data-count="94">0</span>
+        <span class="hstat__label">Response Rate %</span>
+        <span class="hstat__trend up">↑ 3% vs last month</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat__value text-blue">8.2<small>min</small></span>
+        <span class="hstat__label">Avg Response Time</span>
+        <span class="hstat__trend up">↓ 1.4min improved</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMERGENCY CATEGORIES -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="eyebrow">Emergency Types</div>
+        <h2 class="section-title">Every Crisis. One Platform.</h2>
+        <p class="section-desc">CrisisEye monitors and coordinates response across all major emergency categories affecting Ghana's communities.</p>
+      </div>
+
+      <div class="categories-grid">
+
+        <div class="cat-card cat--fire">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 6C24 6 34 16 34 26C34 31.523 29.523 36 24 36C18.477 36 14 31.523 14 26C14 20 17 16 20 13C20 13 18 22 24 22C24 22 22 14 24 6Z" fill="#EF4444" opacity="0.9"/><path d="M24 20C24 20 29 25 29 30C29 32.761 26.761 35 24 35C21.239 35 19 32.761 19 30C19 25 24 20 24 20Z" fill="#F97316"/></svg>
+          </div>
+          <h3>Fire &amp; Explosion</h3>
+          <p>Structural fires, wildfires, gas explosions, and industrial incidents</p>
+          <div class="cat-card__footer">
+            <span class="cat-count text-red">43</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+        <div class="cat-card cat--medical">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="28" rx="5" stroke="#10B981" stroke-width="2"/><path d="M24 17v14M17 24h14" stroke="#10B981" stroke-width="3" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Medical Emergency</h3>
+          <p>Cardiac events, trauma, mass casualty incidents, and health crises</p>
+          <div class="cat-card__footer">
+            <span class="cat-count text-green">87</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+        <div class="cat-card cat--flood">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M8 28C8 28 14 22 20 28C26 34 32 22 38 28" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round"/><path d="M8 36C8 36 14 30 20 36C26 42 32 30 38 36" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><path d="M24 8L28 18H20L24 8Z" fill="#38BDF8" opacity="0.8"/></svg>
+          </div>
+          <h3>Flood &amp; Storm</h3>
+          <p>Flash floods, river overflow, tropical storms, and coastal surges</p>
+          <div class="cat-card__footer">
+            <span class="cat-count text-blue">31</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+        <div class="cat-card cat--accident">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="6" y="20" width="36" height="14" rx="4" stroke="#F97316" stroke-width="2"/><circle cx="14" cy="34" r="4" stroke="#F97316" stroke-width="2"/><circle cx="34" cy="34" r="4" stroke="#F97316" stroke-width="2"/><path d="M6 26h36" stroke="#F97316" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M20 20V14l4-3 4 3v6" stroke="#F97316" stroke-width="2"/></svg>
+          </div>
+          <h3>Road Accident</h3>
+          <p>Vehicle collisions, pedestrian incidents, and highway emergencies</p>
+          <div class="cat-card__footer">
+            <span class="cat-count text-orange">56</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+        <div class="cat-card cat--crime">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8L10 16V28C10 35.732 16.268 42 24 42C31.732 42 38 35.732 38 28V16L24 8Z" stroke="#94A3B8" stroke-width="2"/><path d="M18 26l5 5 8-10" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Crime &amp; Security</h3>
+          <p>Armed robbery, assault, civil unrest, and public safety incidents</p>
+          <div class="cat-card__footer">
+            <span class="cat-count" style="color:#94A3B8">29</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+        <div class="cat-card cat--hazard">
+          <div class="cat-card__glow"></div>
+          <div class="cat-card__icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8L40 38H8L24 8Z" stroke="#F97316" stroke-width="2" stroke-linejoin="round"/><path d="M24 20v10M24 34v2" stroke="#F97316" stroke-width="3" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Hazardous Materials</h3>
+          <p>Chemical spills, gas leaks, industrial accidents, and toxic exposure</p>
+          <div class="cat-card__footer">
+            <span class="cat-count text-orange">12</span>
+            <span class="cat-period">this month</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section--dark">
+    <div class="container">
+      <div class="section-header">
+        <div class="eyebrow">Platform Workflow</div>
+        <h2 class="section-title">From Alert to Resolution</h2>
+        <p class="section-desc">CrisisEye connects communities, responders, and coordinators through a single intelligent platform — cutting response time and saving lives.</p>
+      </div>
+
+      <div class="how-grid">
+        <div class="how-card reveal">
+          <div class="how-card__num">01</div>
+          <div class="how-card__icon-wrap">
+            <svg width="36" height="36" fill="none" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" stroke="#38BDF8" stroke-width="1.5"/><path d="M18 10v8l5 5" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Incident Detected</h3>
+          <p>A citizen, responder, or sensor detects an emergency and submits a structured report with location, severity, and category.</p>
+        </div>
+        <div class="how-arrow">→</div>
+
+        <div class="how-card reveal">
+          <div class="how-card__num">02</div>
+          <div class="how-card__icon-wrap">
+            <svg width="36" height="36" fill="none" viewBox="0 0 36 36"><path d="M4 32L18 5l14 27H4z" stroke="#F97316" stroke-width="1.5" stroke-linejoin="round"/><path d="M18 16v8M18 27v1" stroke="#F97316" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Alert Broadcast</h3>
+          <p>The incident is classified by priority and broadcast to Ghana Fire Service, Police, Health Service, NADMO, and Ambulance.</p>
+        </div>
+        <div class="how-arrow">→</div>
+
+        <div class="how-card reveal">
+          <div class="how-card__num">03</div>
+          <div class="how-card__icon-wrap">
+            <svg width="36" height="36" fill="none" viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="4" stroke="#10B981" stroke-width="1.5"/><path d="M12 18h12M18 12v12" stroke="#10B981" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Command &amp; Coordination</h3>
+          <p>The Command Dashboard gives coordinators a real-time picture — active incidents, resources, agency status, and priorities.</p>
+        </div>
+        <div class="how-arrow">→</div>
+
+        <div class="how-card reveal">
+          <div class="how-card__num">04</div>
+          <div class="how-card__icon-wrap">
+            <svg width="36" height="36" fill="none" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" stroke="#10B981" stroke-width="1.5"/><path d="M11 18l5 5 9-9" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Incident Resolved</h3>
+          <p>Response teams confirm resolution. The incident is logged, metrics are updated, and community status is cleared.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENCIES -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="eyebrow">National Network</div>
+        <h2 class="section-title">Ghana's Emergency Response Ecosystem</h2>
+      </div>
+      <div class="agencies-grid">
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#EF4444">GFS</div>
+          <div class="agency-name">Ghana Fire Service</div>
+          <div class="agency-status status-active">● Connected</div>
+        </div>
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#38BDF8">GPS</div>
+          <div class="agency-name">Ghana Police Service</div>
+          <div class="agency-status status-active">● Connected</div>
+        </div>
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#10B981">GHS</div>
+          <div class="agency-name">Ghana Health Service</div>
+          <div class="agency-status status-active">● Connected</div>
+        </div>
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#F97316">NADMO</div>
+          <div class="agency-name">Nat. Disaster Mgmt. Org.</div>
+          <div class="agency-status status-active">● Connected</div>
+        </div>
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#94A3B8">NAS</div>
+          <div class="agency-name">National Ambulance Service</div>
+          <div class="agency-status status-active">● Connected</div>
+        </div>
+        <div class="agency-card">
+          <div class="agency-abbr" style="color:#94A3B8">GNFS</div>
+          <div class="agency-name">Ghana Nat. Fire Squadron</div>
+          <div class="agency-status status-standby">◌ Standby</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section class="section section--impact">
+    <div class="container">
+      <div class="section-header">
+        <div class="eyebrow">Platform Impact</div>
+        <h2 class="section-title">Protecting Communities Across Ghana</h2>
+        <p class="section-desc">Since deployment, CrisisEye has fundamentally improved how Ghana's emergency ecosystem operates — faster, smarter, more coordinated.</p>
+      </div>
+      <div class="impact-grid">
+        <div class="impact-stat reveal">
+          <span class="impact-val" data-count="1240">0</span>
+          <span class="impact-label">Total Incidents Handled</span>
+          <span class="impact-sub">Across all 16 regions since launch</span>
+        </div>
+        <div class="impact-stat reveal">
+          <span class="impact-val text-green" data-count="96">0</span>
+          <span class="impact-label">% Resolution Rate</span>
+          <span class="impact-sub">Of reported incidents successfully resolved</span>
+        </div>
+        <div class="impact-stat reveal">
+          <span class="impact-val text-blue" data-count="58">0</span>
+          <span class="impact-label">Districts Covered</span>
+          <span class="impact-sub">Across Ghana's regions and municipalities</span>
+        </div>
+        <div class="impact-stat reveal">
+          <span class="impact-val text-red" data-count="8">0</span>
+          <span class="impact-label">Agencies Integrated</span>
+          <span class="impact-sub">National emergency response bodies</span>
+        </div>
+        <div class="impact-stat reveal">
+          <span class="impact-val text-orange" data-count="312">0</span>
+          <span class="impact-label">Responders Active</span>
+          <span class="impact-sub">Field responders with real-time access</span>
+        </div>
+        <div class="impact-stat reveal">
+          <span class="impact-val" data-count="42">0</span>
+          <span class="impact-label">% Faster Response</span>
+          <span class="impact-sub">Improvement since deployment</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-strip">
+        <div class="cta-strip__bg"></div>
+        <h2>An emergency is happening right now.</h2>
+        <p>Every second counts. Report it. Track it. Resolve it — together.</p>
+        <div class="cta-strip__btns">
+          <a href="report.html" class="btn btn--danger btn--lg">
+            <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v6M8 11v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M1.5 13.5L8 2l6.5 11.5H1.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            Report an Emergency
+          </a>
+          <a href="map.html" class="btn btn--ghost btn--lg">View Live Incidents →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="nav__logo">
+            <span class="nav__logo-icon">
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#38BDF8" stroke-width="1.5"/><circle cx="14" cy="14" r="8" stroke="#38BDF8" stroke-width="1" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="3" fill="#EF4444"/></svg>
+            </span>
+            <span class="nav__logo-text">CRISIS<span class="text-red">EYE</span></span>
+          </a>
+          <p>Intelligent Emergency Monitoring &amp; Response Platform<br>Republic of Ghana</p>
+          <div class="footer__live">
+            <span class="live-dot"></span>
+            System Operational — All Services Online
+          </div>
+        </div>
+        <div class="footer__links-group">
+          <div class="footer__col">
+            <div class="footer__col-title">Platform</div>
+            <a href="index.html">Home</a>
+            <a href="report.html">Report Emergency</a>
+            <a href="map.html">Live Incident Map</a>
+            <a href="dashboard.html">Command Dashboard</a>
+          </div>
+          <div class="footer__col">
+            <div class="footer__col-title">Agencies</div>
+            <a href="#">Ghana Fire Service</a>
+            <a href="#">Ghana Police Service</a>
+            <a href="#">Ghana Health Service</a>
+            <a href="#">NADMO</a>
+          </div>
+          <div class="footer__col">
+            <div class="footer__col-title">Emergency Lines</div>
+            <a href="tel:192" class="text-red">192 — Fire Service</a>
+            <a href="tel:191" class="text-blue">191 — Police</a>
+            <a href="tel:193" class="text-green">193 — Ambulance</a>
+            <a href="tel:112" class="text-orange">112 — NADMO</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2024 CrisisEye — National Emergency Management Platform. Republic of Ghana.</p>
+        <p class="footer__note">Academic project — Koforidua Technical University, Web Design &amp; Development</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
