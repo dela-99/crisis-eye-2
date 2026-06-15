@@ -8,8 +8,18 @@
   /* Theme Colors */
   --bg-app: #030712;
   --bg-card: rgba(17, 24, 39, 0.45);
+  --bg-card-medium: rgba(
+    17,
+    24,
+    39,
+    0.6
+  ); /* Slightly darker card for some uses */
+
   --bg-card-hover: rgba(31, 41, 55, 0.6);
   --border-glass: rgba(255, 255, 255, 0.07);
+  --bg-section-dark: #0f172a;
+  --bg-section-light: #030712;
+
   --border-glass-glow: rgba(255, 255, 255, 0.15);
 
   /* Functional Colors */
@@ -19,6 +29,10 @@
   --danger: #ef4444;
   --danger-glow: rgba(239, 68, 68, 0.15);
   --warning: #f59e0b;
+  --blue-dim: rgba(56, 189, 248, 0.15); /* New dim blue for step numbers */
+  --blue: #38bdf8;
+  --green: #10b981;
+  --orange: #f97316;
   --warning-glow: rgba(245, 158, 11, 0.15);
   --success: #10b981;
   --success-glow: rgba(16, 185, 129, 0.15);
@@ -26,6 +40,8 @@
   /* Blurs & Shadows */
   --blur-glass: 14px;
   --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --radius-lg: 12px; /* Standard card border radius */
+  --radius-xl: 16px; /* Larger radius for hero/sections if needed */
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -114,6 +130,7 @@ body {
   padding: 8px 20px;
   cursor: pointer;
   border-radius: 20px;
+  text-decoration: none;
   transition: var(--transition-smooth);
 }
 
@@ -207,9 +224,9 @@ body {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(3, 7, 18, 0.75) 30%,
-    rgba(10, 15, 30, 0.45) 70%,
-    rgba(3, 7, 18, 0.75) 100%
+    rgba(3, 7, 18, 0.6) 30%,
+    rgba(10, 15, 30, 0.3) 70%,
+    rgba(3, 7, 18, 0.6) 100%
   );
   z-index: 1;
 }
@@ -360,6 +377,325 @@ body {
 .btn-danger:hover {
   background: #dc2626;
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+.btn--police {
+  background: var(--blue);
+  color: var(--bg-app);
+}
+
+.btn--police:hover {
+  background: #0ea5e9;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.btn--medical {
+  background: var(--green);
+  color: var(--bg-app);
+}
+
+.btn--medical:hover {
+  background: #059669;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn--nadmo {
+  background: var(--orange);
+  color: var(--bg-app);
+}
+
+.btn--nadmo:hover {
+  background: #ea580c;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+}
+
+/* ==========================================================================
+   ✨ NEW SECTIONS: EMERGENCY CONTACTS & HOW IT WORKS
+   ========================================================================== */
+.section {
+  padding: 80px 4%;
+  position: relative;
+  z-index: 1;
+}
+
+.section--dark {
+  background-color: var(--bg-section-dark);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Emergency Contacts Grid */
+.emergency-contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px; /* Adjusted gap for a tighter layout */
+}
+
+.ec-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--border-glass);
+  border-radius: 12px; /* Slightly smaller border-radius */
+  padding: 24px; /* Reduced padding */
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ec-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    var(--border-glass-glow) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: var(--transition-smooth);
+}
+
+.ec-card:hover::before {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    var(--cyan-glow) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.ec-card__num {
+  font-family: var(--font-mono);
+  font-size: 3rem; /* Slightly smaller number */
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 15px;
+  line-height: 1;
+}
+
+.ec-card__icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 20px;
+}
+
+.ec-card__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ec-card__body h3 {
+  font-size: 1.3rem; /* Slightly smaller heading */
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.ec-card__body p {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 15px; /* Reduced margin */
+  line-height: 1.5;
+}
+
+/* Emergency Steps */
+.emergency-steps {
+  margin-top: 80px;
+}
+
+.esteps-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  ); /* Adjusted min-width for steps */
+  gap: 24px;
+}
+
+.estep {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.estep__num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--cyan-glow);
+  line-height: 1;
+}
+
+.estep__body h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.estep__body p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* How It Works Grid */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  ); /* Adjusted min-width for smaller cards */
+  gap: 24px;
+  align-items: start;
+}
+
+.how-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--border-glass);
+  border-radius: 12px; /* Slightly smaller border-radius */
+  padding: 20px; /* Further reduced padding for a more compact look */
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition-smooth);
+  text-align: center;
+  height: 100%; /* Ensure cards have equal height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.how-card:hover {
+  border-color: var(--border-glass-glow);
+  transform: translateY(-5px);
+}
+
+.how-card__num {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 15px;
+}
+
+.how-card__icon-wrap {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%;
+  margin-bottom: 15px; /* Reduced margin */
+  border: 1px solid var(--border-glass);
+}
+
+.how-card__icon-wrap svg {
+  width: 36px;
+  height: 36px;
+}
+
+.how-card h3 {
+  font-size: 1.2rem; /* Slightly smaller heading */
+  font-weight: 700;
+  margin-bottom: 8px; /* Reduced margin */
+}
+
+.how-card p {
+  font-size: 0.9rem; /* Slightly smaller paragraph text */
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* Responsive adjustments for how-grid arrows */
+@media (min-width: 1024px) {
+  /* Apply 4-column layout with arrows on wider screens */
+  .how-grid {
+    grid-template-columns: 1fr min-content 1fr min-content 1fr min-content 1fr; /* 4 cards, 3 arrows */
+    gap: 0; /* Remove grid gap, spacing handled by min-content columns */
+    align-items: center; /* Vertically align cards and arrows */
+  }
+  .how-arrow {
+    display: block;
+    font-size: 2rem; /* Slightly smaller arrow */
+    color: var(--color-text-muted);
+    opacity: 0.3;
+    text-align: center; /* Center the arrow text */
+    padding: 0 12px; /* Add horizontal padding for visual spacing */
+    /* Ensure no absolute positioning or transforms */
+    position: static;
+    transform: none;
+    top: auto;
+    left: auto;
+  }
+}
+
+/* Reveal animation for cards (optional, requires JS for trigger) */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ==========================================================================
@@ -644,6 +980,11 @@ body {
     height: auto;
     padding: 15px 20px;
     border-radius: 24px;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .nav-left,
+  .nav-right {
     flex-direction: column;
     gap: 15px;
   }

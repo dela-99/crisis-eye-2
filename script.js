@@ -59,49 +59,26 @@ let incidentsData = [...mockIncidents];
    🏁 INITIALIZATION WORKFLOW
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-    initNavigation();
     initFilterListeners();
     renderAppCore();
+    initScrollReveal(); // Initialize scroll reveal for animations
 });
 
 /* ==========================================================================
-   🧭 SINGLE PAGE APPLICATION VIEW ENGINE ROUTER
+   🧭 NAVIGATION & VIEW HELPERS
    ========================================================================== */
-function initNavigation() {
-    const navButtons = document.querySelectorAll(".nav-link:not(.disabled-link)");
-    
-    navButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            // Remove active tags from buttons
-            navButtons.forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
-            
-            // Toggle view panels
-            const TargetViewId = button.getAttribute("data-target");
-            switchView(TargetViewId);
-        });
-    });
-}
-
 function switchView(viewId) {
-    // Hide all views safely
-    document.querySelectorAll(".app-view").forEach(view => {
-        view.classList.remove("active-view");
-    });
-    
-    // Mount designated view targeting element
-    const activeTarget = document.getElementById(`view-${viewId}`);
-    if (activeTarget) {
-        activeTarget.classList.add("active-view");
-        
-        // Sync Navbar state if view was flipped inside canvas layout buttons
-        const navButtons = document.querySelectorAll(".nav-link");
-        navButtons.forEach(btn => {
-            if (btn.getAttribute("data-target") === viewId) {
-                navButtons.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-            }
-        });
+    const pageMap = {
+        'home': 'index.html',
+        'reports': 'report.html',
+        'dashboard': 'dashboard.html',
+        'map': 'map.html'
+    };
+
+    if (pageMap[viewId]) {
+        window.location.href = pageMap[viewId];
+    } else {
+        window.location.href = 'index.html';
     }
 }
 
@@ -241,6 +218,24 @@ function calculateAndRenderAnalytics() {
     renderActivityFeed();
 }
 
+/* ==========================================================================
+   ✨ SCROLL REVEAL ANIMATIONS
+   ========================================================================== */
+function initScrollReveal() {
+    const revealElements = document.querySelectorAll(".reveal");
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+                observer.unobserve(entry.target); // Stop observing once revealed
+            }
+        });
+    }, { threshold: 0.1 }); // Trigger when 10% of the element is visible
+
+    revealElements.forEach(el => observer.observe(el));
+}
+
 function safeSetText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
@@ -303,12 +298,9 @@ function triggerMockAlert() {
     // Prepend into state array
     incidentsData.unshift(newIncident);
 
-    // Re-render ecosystem components natively
-    renderAppCore();
-
     // Alert User via System Context Prompt UI Banner Flash
     alert(`🚨 SIMULATION NOTIFICATION:\nNew Emergency Dispatched!\nType: ${randomTitle}\nTarget Vector: ${randomLoc}\nSeverity: ${randomSev}\n\nCommand Metrics and Incident logs have been updated instantaneously.`);
     
-    // Route view seamlessly to dashboard for instant user visibility feedback
-    switchView("dashboard");
+    // For multi-page, we redirect to dashboard to see the new data
+    window.location.href = 'dashboard.html';
 }

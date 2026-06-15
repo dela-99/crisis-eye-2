@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrisisEye - Incident Reports</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="company logo.jpeg" alt="CrisisEye Logo" class="nav-logo" />
+        <span class="nav-brand"
+          >CRISIS<span class="brand-accent">EYE</span></span
+        >
+      </div>
+
+      <div class="nav-center-pill">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="report.html" class="nav-link active">Reports</a>
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="map.html" class="nav-link">Live Map</a>
+      </div>
+
+      <div class="nav-right">
+        <div class="live-pulse-container">
+          <span class="pulse-dot"></span>
+          <span class="pulse-text">SYSTEM LIVE</span>
+        </div>
+        <button class="btn btn-danger" onclick="triggerMockAlert()">
+          Report Emergency
+        </button>
+      </div>
+    </nav>
+
+    <main class="app-container">
+      <section id="view-reports" class="app-view active-view">
+        <div class="view-header">
+          <div>
+            <h2 class="view-title">Incident Reports</h2>
+            <p class="view-subtitle">
+              Historical and active incident logs within the national
+              jurisdiction
+            </p>
+          </div>
+          <div class="view-header-actions">
+            <span class="telemetry-counter" id="total-reports-badge"
+              >0 Logs Found</span
+            >
+          </div>
+        </div>
+
+        <div class="glass-card control-toolbar">
+          <div class="search-box-wrapper">
+            <svg
+              class="search-icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search incidents by name, region, or landmark..."
+            />
+          </div>
+
+          <div class="toolbar-filters">
+            <div class="filter-group">
+              <label for="filter-severity">Severity</label>
+              <select id="filter-severity" class="glass-select">
+                <option value="all">All Levels</option>
+                <option value="High">🔴 High</option>
+                <option value="Medium">🟡 Medium</option>
+                <option value="Low">🟢 Low</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-status">Status</label>
+              <select id="filter-status" class="glass-select">
+                <option value="all">All States</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="reports-grid" id="reports-container"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

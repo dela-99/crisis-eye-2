@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrisisEye — Live Incident Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <style>
+      /* ================================================================
+         MAP PAGE — SCOPED STYLES
+      ================================================================ */
+      body {
+        overflow: hidden; /* Full-screen map, no scroll */
+      }
+
+      /* Full-screen map container sits under the navbar */
+      .map-fullscreen-wrapper {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      #crisis-map {
+        width: 100%;
+        height: 100%;
+        filter: saturate(0.3) brightness(0.55);
+        transition: filter 0.4s ease;
+      }
+
+      /* Overlay tint so dark theme bleeds onto the map */
+      .map-tint-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(
+          135deg,
+          rgba(3, 7, 18, 0.45) 0%,
+          rgba(3, 7, 18, 0.1) 50%,
+          rgba(3, 7, 18, 0.45) 100%
+        );
+      }
+
+      /* Left sidebar panel */
+      .map-sidebar {
+        position: fixed;
+        top: 108px; /* below navbar */
+        left: 20px;
+        width: 320px;
+        max-height: calc(100vh - 128px);
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .map-sidebar::-webkit-scrollbar { display: none; }
+
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-24px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
+      /* Sidebar search */
+      .sidebar-search {
+        position: relative;
+      }
+
+      .sidebar-search input {
+        width: 100%;
+        background: rgba(10, 15, 30, 0.82);
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        padding: 12px 16px 12px 44px;
+        color: var(--color-text);
+        font-family: var(--font-primary);
+        font-size: 0.9rem;
+        backdrop-filter: blur(14px);
+        outline: none;
+        transition: var(--transition-smooth);
+      }
+
+      .sidebar-search input:focus {
+        border-color: var(--cyan-glow);
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+      }
+
+      .sidebar-search svg {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-text-muted);
+        pointer-events: none;
+      }
+
+      /* Filter pill row */
+      .filter-pills {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .filter-pill {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: var(--transition-smooth);
+        letter-spacing: 0.4px;
+        background: rgba(255,255,255,0.04);
+        color: var(--color-text-muted);
+        border-color: var(--border-glass);
+        text-transform: uppercase;
+      }
+
+      .filter-pill.active, .filter-pill:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+        border-color: var(--border-glass-glow);
+      }
+
+      .filter-pill.pill-all.active   { background: rgba(6,182,212,0.15); color: var(--cyan-glow); border-color: rgba(6,182,212,0.35); }
+      .filter-pill.pill-high.active  { background: var(--danger-glow); color: var(--danger); border-color: rgba(239,68,68,0.35); }
+      .filter-pill.pill-med.active   { background: var(--warning-glow); color: var(--warning); border-color: rgba(245,158,11,0.35); }
+      .filter-pill.pill-low.active   { background: var(--success-glow); color: var(--success); border-color: rgba(16,185,129,0.35); }
+
+      /* Incident list in sidebar */
+      .sidebar-list-header {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        padding: 0 2px;
+      }
+
+      .sidebar-incident-card {
+        background: rgba(10, 15, 30, 0.80);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar-incident-card:hover,
+      .sidebar-incident-card.selected {
+        border-color: var(--cyan-glow);
+        background: rgba(6, 182, 212, 0.06);
+        transform: translateX(3px);
+      }
+
+      .sic-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .sic-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.3;
+        flex: 1;
+      }
+
+      .sic-loc {
+        font-size: 0.78rem;
+        color: var(--color-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .sic-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Right controls panel */
+      .map-controls {
+        position: fixed;
+        top: 108px;
+        right: 20px;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(24px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
+      .map-ctrl-btn {
+        width: 44px;
+        height: 44px;
+        background: rgba(10, 15, 30, 0.82);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text-muted);
+        transition: var(--transition-smooth);
+      }
+
+      .map-ctrl-btn:hover {
+        color: var(--cyan-glow);
+        border-color: var(--cyan-glow);
+        background: rgba(6, 182, 212, 0.08);
+      }
+
+      /* Bottom status bar */
+      .map-status-bar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: 50px;
+        padding: 10px 28px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        animation: slideUp 0.5s 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+
+      .status-bar-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+
+      .status-bar-stat .label {
+        color: var(--color-text-muted);
+        letter-spacing: 0.4px;
+      }
+
+      .status-bar-stat .val {
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      .status-bar-divider {
+        width: 1px;
+        height: 18px;
+        background: var(--border-glass);
+      }
+
+      /* Incident detail popup (custom, replaces Leaflet default) */
+      .incident-popup-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        pointer-events: none;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 80px;
+      }
+
+      .incident-popup {
+        background: rgba(10, 15, 30, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border-glass-glow);
+        border-radius: 20px;
+        padding: 24px 28px;
+        width: 420px;
+        max-width: calc(100vw - 40px);
+        pointer-events: auto;
+        transform: translateY(32px);
+        opacity: 0;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      }
+
+      .incident-popup.visible {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+
+      .popup-id {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--cyan-glow);
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+      }
+
+      .popup-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      .popup-close {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border-glass);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text-muted);
+        transition: var(--transition-smooth);
+        flex-shrink: 0;
+      }
+
+      .popup-close:hover { color: #fff; border-color: var(--border-glass-glow); }
+
+      .popup-loc {
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 16px;
+      }
+
+      .popup-meta {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .popup-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .popup-actions .btn {
+        flex: 1;
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 10px 16px;
+      }
+
+      /* Leaflet custom pin override */
+      .crisis-pin {
+        width: 36px;
+        height: 42px;
+        position: relative;
+        filter: drop-shadow(0 4px 12px currentColor);
+      }
+
+      /* Pulsing ring on active markers */
+      .pin-pulse-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        transform: translate(-50%, -60%);
+        animation: markerPulse 2s infinite ease-out;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      @keyframes markerPulse {
+        0%   { transform: translate(-50%, -60%) scale(0.5); opacity: 0.8; }
+        100% { transform: translate(-50%, -60%) scale(2);   opacity: 0; }
+      }
+
+      .pin-pulse-high   { background: radial-gradient(circle, rgba(239,68,68,0.6), transparent 70%); }
+      .pin-pulse-medium { background: radial-gradient(circle, rgba(245,158,11,0.6), transparent 70%); }
+      .pin-pulse-low    { background: radial-gradient(circle, rgba(16,185,129,0.6), transparent 70%); }
+
+      /* Map legend */
+      .map-legend {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        z-index: 200;
+        background: rgba(10,15,30,0.82);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        padding: 14px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        animation: slideInRight 0.5s 0.1s cubic-bezier(0.4,0,0.2,1) both;
+      }
+
+      .legend-title {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .legend-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      /* Leaflet popup reset — we use custom */
+      .leaflet-popup { display: none !important; }
+
+      /* Leaflet zoom control override */
+      .leaflet-control-zoom {
+        display: none !important;
+      }
+
+      /* Coordinate display */
+      .coord-display {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--color-text-muted);
+        letter-spacing: 0.3px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .map-sidebar { width: calc(100vw - 40px); max-height: 45vh; top: auto; bottom: 90px; }
+        .map-controls { top: 108px; }
+        .incident-popup { width: calc(100vw - 40px); }
+        .map-legend { display: none; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="company logo.jpeg" alt="CrisisEye Logo" class="nav-logo" />
+        <span class="nav-brand">CRISIS<span class="brand-accent">EYE</span></span>
+      </div>
+
+      <div class="nav-center-pill">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="report.html" class="nav-link">Reports</a>
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="map.html" class="nav-link active">Live Map</a>
+      </div>
+
+      <div class="nav-right">
+        <div class="live-pulse-container">
+          <span class="pulse-dot"></span>
+          <span class="pulse-text">SYSTEM LIVE</span>
+        </div>
+        <button class="btn btn-danger" onclick="triggerMockAlert()">
+          Report Emergency
+        </button>
+      </div>
+    </nav>
+
+    <!-- ===================== FULL-SCREEN MAP ===================== -->
+    <div class="map-fullscreen-wrapper">
+      <div id="crisis-map"></div>
+    </div>
+    <div class="map-tint-overlay"></div>
+
+    <!-- ===================== LEFT SIDEBAR ===================== -->
+    <aside class="map-sidebar">
+      <!-- Search -->
+      <div class="sidebar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="map-search" placeholder="Search incidents or locations…" oninput="filterMapIncidents()" />
+      </div>
+
+      <!-- Filter pills -->
+      <div class="filter-pills">
+        <button class="filter-pill pill-all active" onclick="setMapFilter('all', this)">All</button>
+        <button class="filter-pill pill-high" onclick="setMapFilter('High', this)">High</button>
+        <button class="filter-pill pill-med" onclick="setMapFilter('Medium', this)">Medium</button>
+        <button class="filter-pill pill-low" onclick="setMapFilter('Low', this)">Low</button>
+        <button class="filter-pill" onclick="setMapFilter('Active', this)">Active</button>
+        <button class="filter-pill" onclick="setMapFilter('Pending', this)">Pending</button>
+        <button class="filter-pill" onclick="setMapFilter('Resolved', this)">Resolved</button>
+      </div>
+
+      <!-- Incident list header -->
+      <div class="sidebar-list-header" id="map-list-count">6 incidents on map</div>
+
+      <!-- Dynamically generated incident cards -->
+      <div id="map-incident-list"></div>
+    </aside>
+
+    <!-- ===================== RIGHT CONTROLS ===================== -->
+    <div class="map-controls">
+      <button class="map-ctrl-btn" onclick="mapZoomIn()" title="Zoom In">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+      <button class="map-ctrl-btn" onclick="mapZoomOut()" title="Zoom Out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+      <button class="map-ctrl-btn" onclick="mapFitAll()" title="Fit All Incidents">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6M3 3v6M21 3h-6M21 3v6M3 21h6M3 21v-6M21 21h-6M21 21v-6"/></svg>
+      </button>
+      <button class="map-ctrl-btn" onclick="locateUser()" title="My Location">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+      </button>
+    </div>
+
+    <!-- ===================== LEGEND ===================== -->
+    <div class="map-legend">
+      <div class="legend-title">Severity</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ef4444;box-shadow:0 0 6px #ef4444;"></div> High Priority</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#f59e0b;box-shadow:0 0 6px #f59e0b;"></div> Medium Priority</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#10b981;box-shadow:0 0 6px #10b981;"></div> Low Priority</div>
+    </div>
+
+    <!-- ===================== BOTTOM STATUS BAR ===================== -->
+    <div class="map-status-bar">
+      <div class="status-bar-stat">
+        <span class="pulse-dot" style="width:6px;height:6px;"></span>
+        <span class="label">LIVE</span>
+      </div>
+      <div class="status-bar-divider"></div>
+      <div class="status-bar-stat">
+        <span class="label">Total</span>
+        <span class="val" id="sb-total">6</span>
+      </div>
+      <div class="status-bar-divider"></div>
+      <div class="status-bar-stat">
+        <span class="label" style="color:var(--danger);">Active</span>
+        <span class="val" id="sb-active">0</span>
+      </div>
+      <div class="status-bar-divider"></div>
+      <div class="status-bar-stat">
+        <span class="label" style="color:var(--warning);">Pending</span>
+        <span class="val" id="sb-pending">0</span>
+      </div>
+      <div class="status-bar-divider"></div>
+      <div class="status-bar-stat">
+        <span class="label" style="color:var(--success);">Resolved</span>
+        <span class="val" id="sb-resolved">0</span>
+      </div>
+      <div class="status-bar-divider"></div>
+      <div class="status-bar-stat">
+        <span class="coord-display" id="sb-coords">5.6037° N, 0.1870° W</span>
+      </div>
+    </div>
+
+    <!-- ===================== INCIDENT DETAIL POPUP ===================== -->
+    <div class="incident-popup-overlay" id="popup-overlay">
+      <div class="incident-popup" id="incident-popup">
+        <div class="popup-header">
+          <div>
+            <div class="popup-id" id="popup-id">INCIDENT #000</div>
+            <div class="popup-title" id="popup-title">—</div>
+          </div>
+          <button class="popup-close" onclick="closePopup()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="popup-loc">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span id="popup-loc">—</span>
+        </div>
+        <div class="popup-meta">
+          <span class="badge" id="popup-severity-badge">—</span>
+          <div class="status-indicator-pill">
+            <span class="status-dot" id="popup-status-dot"></span>
+            <span id="popup-status-text">—</span>
+          </div>
+          <span class="timestamp-lbl" id="popup-time">—</span>
+        </div>
+        <div class="popup-actions">
+          <button class="btn btn-primary btn--sm" onclick="closePopup()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            View Report
+          </button>
+          <button class="btn btn--sm" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-glass);color:var(--color-text-muted);" onclick="closePopup()">
+            Dismiss
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      /* ================================================================
+         MAP PAGE CONTROLLER
+      ================================================================ */
+
+      // Ghana incident coordinates (mapped to real locations)
+      const incidentCoords = {
+        101: [5.5888, -0.1967],   // Accra Mall area
+        102: [5.6764, -0.0068],   // Tema Motorway
+        103: [6.6000, -1.6200],   // Kumasi South
+        104: [6.0929, -0.2633],   // Koforidua
+        105: [4.8985,  -1.7535],  // Takoradi
+        106: [5.5558, -0.1866],   // Osu Oxford Street
+      };
+
+      // Severity → color map
+      const sevColor = {
+        High:   '#ef4444',
+        Medium: '#f59e0b',
+        Low:    '#10b981',
+      };
+
+      let map, markers = [], currentFilter = 'all', selectedCardId = null;
+
+      /* ------ Init Leaflet ------ */
+      function initMap() {
+        map = L.map('crisis-map', {
+          center: [7.2, -1.2],
+          zoom: 7,
+          zoomControl: false,
+          attributionControl: false,
+        });
+
+        // Dark tile layer (CartoDB Dark Matter)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+        }).addTo(map);
+
+        // Update coordinates in status bar on mouse move
+        map.on('mousemove', (e) => {
+          document.getElementById('sb-coords').textContent =
+            `${e.latlng.lat.toFixed(4)}° N, ${Math.abs(e.latlng.lng).toFixed(4)}° W`;
+        });
+
+        renderMapMarkers(incidentsData);
+        renderSidebarList(incidentsData);
+        updateStatusBar(incidentsData);
+      }
+
+      /* ------ Build SVG pin for Leaflet ------ */
+      function buildPinIcon(severity, status) {
+        const color = sevColor[severity] || '#9ca3af';
+        const isActive = status === 'Active';
+        const pulseClass = `pin-pulse-${severity.toLowerCase()}`;
+
+        const html = `
+          <div style="position:relative;width:36px;height:44px;">
+            ${isActive ? `<div class="pin-pulse-ring ${pulseClass}"></div>` : ''}
+            <svg width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 0C8.06 0 0 8.06 0 18C0 31.5 18 44 18 44C18 44 36 31.5 36 18C36 8.06 27.94 0 18 0Z" fill="${color}" fill-opacity="0.9"/>
+              <circle cx="18" cy="18" r="8" fill="white" fill-opacity="0.25"/>
+              <circle cx="18" cy="18" r="4" fill="white"/>
+            </svg>
+          </div>`;
+
+        return L.divIcon({
+          html,
+          className: '',
+          iconSize: [36, 44],
+          iconAnchor: [18, 44],
+          popupAnchor: [0, -44],
+        });
+      }
+
+      /* ------ Place markers on map ------ */
+      function renderMapMarkers(data) {
+        // Clear existing
+        markers.forEach(m => m.leafletMarker.remove());
+        markers = [];
+
+        data.forEach(incident => {
+          const coords = incidentCoords[incident.id];
+          if (!coords) return;
+
+          const icon = buildPinIcon(incident.severity, incident.status);
+          const lm = L.marker(coords, { icon }).addTo(map);
+
+          lm.on('click', () => openPopup(incident));
+
+          markers.push({ id: incident.id, leafletMarker: lm, coords });
+        });
+      }
+
+      /* ------ Sidebar list ------ */
+      function renderSidebarList(data) {
+        const container = document.getElementById('map-incident-list');
+        const counter = document.getElementById('map-list-count');
+        container.innerHTML = '';
+        counter.textContent = `${data.length} incident${data.length !== 1 ? 's' : ''} on map`;
+
+        data.forEach(incident => {
+          const color = sevColor[incident.severity] || '#9ca3af';
+          const card = document.createElement('div');
+          card.className = 'sidebar-incident-card' + (incident.id === selectedCardId ? ' selected' : '');
+          card.id = `sic-${incident.id}`;
+
+          let statusDot = 'bg-warning';
+          if (incident.status === 'Active')   statusDot = 'bg-danger';
+          if (incident.status === 'Resolved') statusDot = 'bg-success';
+
+          card.innerHTML = `
+            <div class="sic-top">
+              <div class="sic-title">${incident.title}</div>
+              <span class="badge badge-${incident.severity.toLowerCase()}">${incident.severity}</span>
+            </div>
+            <div class="sic-loc">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              ${incident.location}
+            </div>
+            <div class="sic-footer">
+              <div class="status-indicator-pill">
+                <span class="status-dot ${statusDot}"></span>
+                ${incident.status}
+              </div>
+              <span class="timestamp-lbl">${incident.time}</span>
+            </div>`;
+
+          card.addEventListener('click', () => {
+            flyToIncident(incident);
+            openPopup(incident);
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      /* ------ Status bar counters ------ */
+      function updateStatusBar(data) {
+        document.getElementById('sb-total').textContent   = data.length;
+        document.getElementById('sb-active').textContent  = data.filter(i => i.status === 'Active').length;
+        document.getElementById('sb-pending').textContent = data.filter(i => i.status === 'Pending').length;
+        document.getElementById('sb-resolved').textContent = data.filter(i => i.status === 'Resolved').length;
+      }
+
+      /* ------ Fly to incident ------ */
+      function flyToIncident(incident) {
+        const coords = incidentCoords[incident.id];
+        if (!coords) return;
+        map.flyTo(coords, 13, { animate: true, duration: 1.2 });
+
+        // Highlight sidebar card
+        document.querySelectorAll('.sidebar-incident-card').forEach(c => c.classList.remove('selected'));
+        const card = document.getElementById(`sic-${incident.id}`);
+        if (card) card.classList.add('selected');
+        selectedCardId = incident.id;
+      }
+
+      /* ------ Open detail popup ------ */
+      function openPopup(incident) {
+        const popup = document.getElementById('incident-popup');
+        document.getElementById('popup-id').textContent = `INCIDENT #${incident.id}`;
+        document.getElementById('popup-title').textContent = incident.title;
+        document.getElementById('popup-loc').textContent = incident.location;
+        document.getElementById('popup-time').textContent = incident.time;
+
+        // Severity badge
+        const badge = document.getElementById('popup-severity-badge');
+        badge.textContent = incident.severity;
+        badge.className = `badge badge-${incident.severity.toLowerCase()}`;
+
+        // Status dot
+        const dot = document.getElementById('popup-status-dot');
+        const statusTxt = document.getElementById('popup-status-text');
+        dot.className = 'status-dot';
+        if (incident.status === 'Active')   dot.classList.add('bg-danger');
+        if (incident.status === 'Pending')  dot.classList.add('bg-warning');
+        if (incident.status === 'Resolved') dot.classList.add('bg-success');
+        statusTxt.textContent = incident.status;
+
+        popup.classList.add('visible');
+      }
+
+      function closePopup() {
+        document.getElementById('incident-popup').classList.remove('visible');
+      }
+
+      /* ------ Filter logic ------ */
+      function setMapFilter(filter, el) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        applyFilters();
+      }
+
+      function filterMapIncidents() {
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const query = document.getElementById('map-search').value.toLowerCase();
+        const filtered = incidentsData.filter(i => {
+          const matchSearch = i.title.toLowerCase().includes(query) || i.location.toLowerCase().includes(query);
+          const matchFilter = currentFilter === 'all'
+            || i.severity === currentFilter
+            || i.status === currentFilter;
+          return matchSearch && matchFilter;
+        });
+
+        renderMapMarkers(filtered);
+        renderSidebarList(filtered);
+        updateStatusBar(filtered);
+      }
+
+      /* ------ Map control helpers ------ */
+      function mapZoomIn()  { map.zoomIn(); }
+      function mapZoomOut() { map.zoomOut(); }
+
+      function mapFitAll() {
+        const visibleCoords = Object.values(incidentCoords);
+        if (visibleCoords.length === 0) return;
+        const bounds = L.latLngBounds(visibleCoords);
+        map.flyToBounds(bounds, { padding: [80, 80], animate: true, duration: 1 });
+      }
+
+      function locateUser() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(pos => {
+          map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, { duration: 1.2 });
+        });
+      }
+
+      /* ------ Bootstrap ------ */
+      document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        // Also run ticker from script.js if it's available
+        if (typeof renderTickerAlerts === 'function') renderTickerAlerts();
+      });
+    </script>
+  </body>
+</html>

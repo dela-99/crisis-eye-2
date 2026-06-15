@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrisisEye - Command Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="company logo.jpeg" alt="CrisisEye Logo" class="nav-logo" />
+        <span class="nav-brand"
+          >CRISIS<span class="brand-accent">EYE</span></span
+        >
+      </div>
+
+      <div class="nav-center-pill">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="report.html" class="nav-link">Reports</a>
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="map.html" class="nav-link">Live Map</a>
+      </div>
+
+      <div class="nav-right">
+        <div class="live-pulse-container">
+          <span class="pulse-dot"></span>
+          <span class="pulse-text">SYSTEM LIVE</span>
+        </div>
+        <button class="btn btn-danger" onclick="triggerMockAlert()">
+          Report Emergency
+        </button>
+      </div>
+    </nav>
+
+    <main class="app-container">
+      <section id="view-dashboard" class="app-view active-view">
+        <div class="view-header">
+          <div>
+            <h2 class="view-title">Command Center Metrics</h2>
+            <p class="view-subtitle">
+              Real-time situational awareness telemetry analytics
+            </p>
+          </div>
+        </div>
+
+        <div class="dashboard-summary-grid">
+          <div class="stat-card glass-card border-left-total">
+            <div class="stat-meta">TOTAL INCIDENTS</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-indicator text-muted">All historical logs</div>
+          </div>
+          <div class="stat-card glass-card border-left-high">
+            <div class="stat-meta">ACTIVE CASES</div>
+            <div class="stat-value text-danger" id="stat-active">0</div>
+            <div class="stat-indicator live-pulse-mini">
+              <span class="pulse-dot"></span> Dispatch deployed
+            </div>
+          </div>
+          <div class="stat-card glass-card border-left-pending">
+            <div class="stat-meta">PENDING TRIAGE</div>
+            <div class="stat-value text-warning" id="stat-pending">0</div>
+            <div class="stat-indicator text-warning">Awaiting validation</div>
+          </div>
+          <div class="stat-card glass-card border-left-resolved">
+            <div class="stat-meta">RESOLVED CASES</div>
+            <div class="stat-value text-success" id="stat-resolved">0</div>
+            <div class="stat-indicator text-success">Threat neutralized</div>
+          </div>
+        </div>
+
+        <div class="dashboard-charts-grid">
+          <div class="glass-card visual-card">
+            <h3 class="card-title">Incident Distribution by Severity</h3>
+            <div class="mock-chart-container">
+              <div class="bar-chart-ui">
+                <div class="bar-row">
+                  <span class="bar-label">High Severity</span>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill bg-danger"
+                      id="chart-bar-high"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="chart-val-high">0</span>
+                </div>
+                <div class="bar-row">
+                  <span class="bar-label">Medium Severity</span>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill bg-warning"
+                      id="chart-bar-medium"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="chart-val-medium">0</span>
+                </div>
+                <div class="bar-row">
+                  <span class="bar-label">Low Severity</span>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill bg-success"
+                      id="chart-bar-low"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="chart-val-low">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card visual-card">
+            <h3 class="card-title">Status Overview Matrix</h3>
+            <div class="mock-chart-container flex-center">
+              <div class="donut-chart-simulation">
+                <div class="donut-segment active-seg">
+                  <span class="seg-dot bg-danger"></span> Active:
+                  <strong id="matrix-active">0</strong>
+                </div>
+                <div class="donut-segment pending-seg">
+                  <span class="seg-dot bg-warning"></span> Pending:
+                  <strong id="matrix-pending">0</strong>
+                </div>
+                <div class="donut-segment resolved-seg">
+                  <span class="seg-dot bg-success"></span> Resolved:
+                  <strong id="matrix-resolved">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card log-card">
+          <h3 class="card-title">System Activity Log Feed</h3>
+          <div class="log-feed-container" id="activity-log-feed"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
